@@ -1,0 +1,137 @@
+<!-- ===== ADMIN NAVBAR ===== -->
+<nav class="admin-nav">
+  <div class="admin-nav-inner">
+    <div class="admin-brand">
+      <span>⚙️</span>
+      <span>My<strong>Store</strong> Admin</span>
+    </div>
+    <a href="/" class="view-store-btn">
+      🛍️ View Store
+    </a>
+  </div>
+</nav>
+
+<!-- ===== ALERTS ===== -->
+<div class="alert alert-success" *ngIf="successMessage">
+  ✅ {{ successMessage }}
+</div>
+<div class="alert alert-error" *ngIf="errorMessage">
+  ❌ {{ errorMessage }}
+</div>
+
+<!-- ===== MAIN ===== -->
+<div class="admin-layout">
+
+  <!-- LEFT: Add Product Form -->
+  <div class="admin-card form-card">
+    <h2 class="card-title">➕ Naya Product Add Karo</h2>
+
+    <div class="form-group">
+      <label>Product Name *</label>
+      <input
+        type="text"
+        [(ngModel)]="newProduct.name"
+        placeholder="e.g. iPhone 15 Pro"
+        class="form-input"
+      />
+    </div>
+
+    <div class="form-group">
+      <label>Price (₹) *</label>
+      <input
+        type="number"
+        [(ngModel)]="newProduct.price"
+        placeholder="e.g. 79999"
+        class="form-input"
+      />
+    </div>
+
+    <div class="form-group">
+      <label>Image URL *</label>
+      <input
+        type="text"
+        [(ngModel)]="newProduct.image"
+        (input)="onImageUrlChange()"
+        placeholder="https://example.com/image.jpg"
+        class="form-input"
+      />
+      <!-- Image Preview -->
+      <div class="image-preview-wrap" *ngIf="imagePreview">
+        <img
+          [src]="imagePreview"
+          alt="Preview"
+          class="image-preview"
+          onerror="this.src='https://placehold.co/300x200/f0f0f0/aaa?text=Invalid+URL'"
+        />
+        <p class="preview-label">Preview</p>
+      </div>
+      <p class="input-hint">
+        💡 Google pe product dhundo → image pe right click → "Copy image address"
+      </p>
+    </div>
+
+    <div class="form-group">
+      <label>Description *</label>
+      <textarea
+        [(ngModel)]="newProduct.description"
+        placeholder="Product ki details likho..."
+        class="form-input form-textarea"
+        rows="3"
+      ></textarea>
+    </div>
+
+    <button
+      class="submit-btn"
+      (click)="addProduct()"
+      [disabled]="isSubmitting"
+    >
+      <span *ngIf="!isSubmitting">✅ Product Add Karo</span>
+      <span *ngIf="isSubmitting">⏳ Adding...</span>
+    </button>
+
+    <button class="reset-btn" (click)="resetForm()">
+      🔄 Form Reset Karo
+    </button>
+  </div>
+
+  <!-- RIGHT: Products List -->
+  <div class="admin-card products-card">
+    <h2 class="card-title">📦 All Products ({{ products.length }})</h2>
+
+    <!-- Loading -->
+    <div class="loading-wrap" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading products...</p>
+    </div>
+
+    <!-- Empty -->
+    <div class="empty-admin" *ngIf="!isLoading && products.length === 0">
+      <p>😕 Koi product nahi hai abhi. Pehla product add karo!</p>
+    </div>
+
+    <!-- Products Table -->
+    <div class="products-list" *ngIf="!isLoading && products.length > 0">
+      <div class="product-row" *ngFor="let p of products">
+
+        <img
+          [src]="p.image"
+          [alt]="p.name"
+          class="row-img"
+          onerror="this.src='https://placehold.co/60x60/f0f0f0/aaa?text=?'"
+        />
+
+        <div class="row-info">
+          <h4 class="row-name">{{ p.name }}</h4>
+          <p class="row-price">{{ formatPrice(p.price) }}</p>
+          <p class="row-desc">{{ p.description }}</p>
+        </div>
+
+        <button class="delete-btn" (click)="deleteProduct(p._id, p.name)">
+          🗑️ Delete
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+</div>

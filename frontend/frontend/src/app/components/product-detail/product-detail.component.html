@@ -1,0 +1,182 @@
+<!-- LOADING STATE -->
+<div class="loading-screen" *ngIf="isLoading">
+  <div class="spinner-large"></div>
+  <p>Loading product...</p>
+</div>
+
+<div *ngIf="!isLoading && product">
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <div class="nav-left">
+        <button class="back-btn" (click)="goBack()">← Back to Store</button>
+      </div>
+      <div class="nav-brand" (click)="goBack()">
+        <span>🛍️</span>
+        <span>My<strong>Store</strong></span>
+      </div>
+      <div class="nav-right">
+        <span class="nav-category">{{ product.category }}</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== BREADCRUMB ===== -->
+  <div class="breadcrumb">
+    <span (click)="goBack()">Home</span>
+    <span class="sep">›</span>
+    <span>{{ product.category }}</span>
+    <span class="sep">›</span>
+    <span class="current">{{ product.name }}</span>
+  </div>
+
+  <!-- ===== MAIN DETAIL ===== -->
+  <div class="detail-container">
+
+    <!-- LEFT: Image Gallery -->
+    <div class="gallery-section">
+      <div class="thumbnails">
+        <div
+          class="thumb"
+          *ngFor="let img of product.images; let i = index"
+          [class.active]="activeImage === i"
+          (click)="activeImage = i">
+          <img [src]="img" [alt]="product.name" />
+        </div>
+      </div>
+
+      <div class="main-image-wrap">
+        <img [src]="product.images[activeImage]" [alt]="product.name" class="main-image" />
+        <span class="img-discount-badge" *ngIf="discount > 0">{{ discount }}% OFF</span>
+      </div>
+    </div>
+
+    <!-- RIGHT: Product Info -->
+    <div class="info-section">
+
+      <p class="product-brand">{{ product.brand }}</p>
+      <h1 class="product-name">{{ product.name }}</h1>
+
+      <!-- Rating Row -->
+      <div class="rating-row">
+        <div class="stars">
+          <span
+            *ngFor="let filled of getStars(product.rating); let i = index"
+            class="star"
+            [class.filled]="filled">★</span>
+        </div>
+        <span class="rating-num">{{ product.rating }}</span>
+        <span class="rating-sep">|</span>
+        <span class="reviews-count">{{ product.reviews }} ratings</span>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Price -->
+      <div class="price-section">
+        <div class="price-main">{{ formatPrice(product.price) }}</div>
+        <div class="price-original" *ngIf="product.originalPrice > product.price">
+          M.R.P.: <s>{{ formatPrice(product.originalPrice) }}</s>
+        </div>
+        <div class="price-savings" *ngIf="discount > 0">
+          You Save: {{ formatPrice(product.originalPrice - product.price) }} ({{ discount }}%)
+        </div>
+        <div class="gst-note">Inclusive of all taxes</div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Stock & Delivery -->
+      <div class="meta-row">
+        <span class="in-stock" *ngIf="product.inStock">✅ In Stock</span>
+        <span class="out-stock" *ngIf="!product.inStock">❌ Out of Stock</span>
+      </div>
+      <div class="delivery-info">
+        <span>🚚</span>
+        <span>Free delivery on orders above ₹499. Usually ships in 1–2 business days.</span>
+      </div>
+      <div class="return-info">
+        <span>↩️</span>
+        <span>7-day easy return policy. No questions asked.</span>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Quantity -->
+      <div class="qty-row">
+        <span class="qty-label">Quantity:</span>
+        <div class="qty-controls">
+          <button (click)="quantity > 1 ? quantity = quantity - 1 : null">−</button>
+          <span>{{ quantity }}</span>
+          <button (click)="quantity = quantity + 1">+</button>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-btns" *ngIf="product.inStock">
+        <button class="btn-cart" (click)="addToCart()">🛒 Add to Cart</button>
+        <button class="btn-buy" (click)="buyNow()">⚡ Buy Now</button>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Key Features -->
+      <div class="features-section">
+        <h3 class="section-heading">Key Features</h3>
+        <ul class="features-list">
+          <li *ngFor="let f of product.features">
+            <span class="check">✓</span> {{ f }}
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== DESCRIPTION + SPECS ===== -->
+  <div class="lower-section">
+    <div class="desc-box">
+      <h2 class="box-title">About this product</h2>
+      <p class="full-desc">{{ product.fullDescription }}</p>
+    </div>
+
+    <div class="specs-box">
+      <h2 class="box-title">Technical Specifications</h2>
+      <table class="specs-table">
+        <tr *ngFor="let spec of product.specs | keyvalue">
+          <td class="spec-key">{{ spec.key }}</td>
+          <td class="spec-val">{{ spec.value }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== RELATED PRODUCTS ===== -->
+  <div class="related-section" *ngIf="relatedProducts.length > 0">
+    <h2 class="related-title">Similar Products</h2>
+    <div class="related-grid">
+      <div
+        class="related-card"
+        *ngFor="let p of relatedProducts"
+        (click)="goToProduct(p._id)">
+        <div class="related-img-wrap">
+          <img [src]="p.images[0]" [alt]="p.name" />
+        </div>
+        <div class="related-info">
+          <p class="related-name">{{ p.name }}</p>
+          <div class="related-rating">
+            <span class="star filled">★</span> {{ p.rating }}
+          </div>
+          <p class="related-price">{{ formatPrice(p.price) }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" [class.show]="showToast">
+  <span>{{ toastIcon }}</span> {{ toastMessage }}
+</div>
